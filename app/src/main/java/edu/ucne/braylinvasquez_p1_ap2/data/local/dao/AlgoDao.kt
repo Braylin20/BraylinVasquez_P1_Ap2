@@ -19,5 +19,5 @@ interface AlgoDao {
     suspend fun delete(algo: AlgoEntity)
 
     @Query("Select * from Algos")
-    suspend fun getAll(): Flow<List<AlgoEntity>>
+    fun getAll(): Flow<List<AlgoEntity>>
 }

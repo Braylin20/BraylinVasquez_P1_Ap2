@@ -5,9 +5,9 @@ import edu.ucne.braylinvasquez_p1_ap2.data.local.entities.VentaEntity
 data class UiState(
     val ventaId: Int? = null,
     val cliente: String? = null,
-    val cantdidadGalones: Double? = null,
+    val cantidadGalones: Double? = null,
     val descuento: Double? = null,
-    val precio: Double? = null,
+    val precio: Double? = 132.6,
     val totalDescuento: Double? = null,
     val total: Double? = null,
     val message: String? = null,
@@ -17,7 +17,7 @@ data class UiState(
 fun UiState.toEntity() = VentaEntity(
     ventaId = ventaId,
     cliente = cliente,
-    cantdidadGalones = cantdidadGalones,
+    cantidadGalones = cantidadGalones,
     descuento = descuento,
     precio = precio,
     totalDescuento = totalDescuento,

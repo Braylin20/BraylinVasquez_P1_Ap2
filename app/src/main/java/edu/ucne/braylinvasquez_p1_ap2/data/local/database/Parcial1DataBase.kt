@@ -9,7 +9,7 @@ import edu.ucne.braylinvasquez_p1_ap2.data.local.entities.VentaEntity
     entities = [
         VentaEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 
 )

@@ -36,24 +36,46 @@ class VentaViewModel @Inject constructor(
 
     fun save() {
         viewModelScope.launch {
+            if(
+                uiState.value.cliente.isNullOrBlank()||
+                uiState.value.cantidadGalones == null||
+                uiState.value.descuento == null||
+                uiState.value.precio == null||
+                uiState.value.totalDescuento == null||
+                uiState.value.total == null
+                ){
+                _uiState.update {
+                    it.copy(message = "Todos los campos son requeridos")
+                }
+                return@launch
+            }
             ventaRepository.save(uiState.value.toEntity())
         }
     }
 
-    private fun isValid(): Boolean{
-        return !(uiState.value.cliente?.isBlank()!! ||
-                uiState.value.cantidadGalones == null ||
-                uiState.value.descuento == null ||
-                uiState.value.precio == null ||
-                uiState.value.totalDescuento ==null||
-                uiState.value.total == null)
-    }
     fun delete(venta: VentaEntity) {
         viewModelScope.launch {
             ventaRepository.delete(venta)
+            _uiState.update {
+                it.copy(message = "Venta eliminado")
+            }
         }
+        nuevo()
     }
 
+    private fun nuevo(){
+        _uiState.update {
+            it.copy(
+                ventaId = null,
+                cliente = "",
+                cantidadGalones = null,
+                descuento = null,
+                precio = null,
+                totalDescuento = null,
+                total = null
+            )
+        }
+    }
     fun selectedVenta(id: Int) {
         viewModelScope.launch {
             if (id > 0) {

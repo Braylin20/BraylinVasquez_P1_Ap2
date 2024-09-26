@@ -48,7 +48,8 @@ fun VentaCreateScreen(
         onCantidadGalonesChange = viewModel::onCantidadGalonesChange,
         onDescuentoChange = viewModel::onDescuentoChange,
         onTotalDescuentoChange = viewModel::onTotalDescuentoChange,
-        onTotalChange = viewModel::onTotalChange
+        onTotalChange = viewModel::onTotalChange,
+        ventaId = ventaId
     )
 }
 
@@ -64,7 +65,9 @@ fun VentaCreateBodyScreen(
     onCantidadGalonesChange: (Double) -> Unit,
     onDescuentoChange: (Double) -> Unit,
     onTotalDescuentoChange: (Double, Double, Double) -> Unit,
-    onTotalChange: (Double) -> Unit
+    onTotalChange: (Double) -> Unit,
+    ventaId: Int
+
 ) {
     Scaffold(
         floatingActionButton = {
@@ -151,13 +154,30 @@ fun VentaCreateBodyScreen(
             ){
 
                 OutlinedButton(
-                    onClick = save,
-                    modifier = Modifier.weight(1f)
+                    onClick = save
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Save")
                     Text("Guardar")
                 }
+                if(ventaId> 0){
+                    OutlinedButton(
+                        onClick = {
+                            delete(VentaEntity(
+                                ventaId = uiState.ventaId,
+                                cliente = uiState.cliente,
+                                cantidadGalones = uiState.cantidadGalones,
+                                descuento = uiState.descuento,
+                                precio = uiState.precio,
+                                totalDescuento = uiState.totalDescuento,
+                                total = uiState.total
 
+                            ))
+                        }
+                    ){
+                        Text("Delete")
+                    }
+
+                }
             }
         }
 
@@ -179,7 +199,8 @@ private fun VentaScreenPreview() {
             onCantidadGalonesChange = {},
             onDescuentoChange = {},
             onTotalDescuentoChange = { _, _, _ ->},
-            onTotalChange = {}
+            onTotalChange = {},
+            ventaId = 0
         )
     }
 

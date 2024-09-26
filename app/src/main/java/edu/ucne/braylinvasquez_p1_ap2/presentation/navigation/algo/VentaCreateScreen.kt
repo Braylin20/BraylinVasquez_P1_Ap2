@@ -152,7 +152,6 @@ fun VentaCreateBodyScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
             ){
-
                 OutlinedButton(
                     onClick = save
                 ) {

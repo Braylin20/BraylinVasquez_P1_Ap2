@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -18,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -107,14 +110,31 @@ fun VentaCreateBodyScreen(
                     value = uiState.cliente?:"",
                     onValueChange = onClienteChange,
                     label = { Text("Cliente") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = uiState.message != null && uiState.message == "Cliente no puede estar vacío",
                 )
+                if (uiState.messageCliente != null) {
+                    Text(
+                        text = uiState.messageCliente,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
+
                 OutlinedTextField(
                     value = uiState.cantidadGalones?.toString()?:"",
                     onValueChange = {onCantidadGalonesChange(it.toDouble())},
                     label = { Text("Cantidad de Galones") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
+                if (uiState.messageGalones != null) {
+                    Text(
+                        text = uiState.messageGalones,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
                 OutlinedTextField(
                     value = uiState.descuento?.toString()?:"",
                     onValueChange = {onDescuentoChange(it.toDouble())},
@@ -130,7 +150,7 @@ fun VentaCreateBodyScreen(
                     readOnly = true
                 )
                 OutlinedTextField(
-                    value = uiState.descuento?.toString()?:"",
+                    value = uiState.totalDescuento?.toString()?:"",
                     onValueChange = {onTotalDescuentoChange(
                         uiState.descuento?:0.0,
                         uiState.precio?:0.0,
@@ -139,13 +159,27 @@ fun VentaCreateBodyScreen(
                     label = { Text("Total Descontado") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                if (uiState.messageTotalDescuento != null) {
+                    Text(
+                        text = uiState.messageTotalDescuento,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
                 OutlinedTextField(
-                    value = uiState.cantidadGalones?.toString()?:"",
+                    value = uiState.total?.toString()?:"",
                     onValueChange = {onTotalChange(it.toDouble())},
                     label = { Text("Total") },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true
                 )
+                if (uiState.messageTotal != null) {
+                    Text(
+                        text = uiState.messageTotal,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
             }
             Row(
                 modifier = Modifier

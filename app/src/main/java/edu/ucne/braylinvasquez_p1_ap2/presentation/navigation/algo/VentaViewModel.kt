@@ -29,28 +29,47 @@ class VentaViewModel @Inject constructor(
             ventaRepository.getAll().collect { ventas ->
                 _uiState.update {
                     it.copy(ventas = ventas)
+
                 }
             }
         }
     }
+    private fun isValid(): Boolean {
+        var isValid = true
+        if (uiState.value.cliente.isNullOrBlank()) {
+            _uiState.update {
+                it.copy(messageCliente = "Cliente no puede estar vacío")
+            }
+            isValid = false
+        }
+        if (uiState.value.cantidadGalones == null) {
+            _uiState.update {
+                it.copy(messageGalones = "Cantidad de galones no puede estar vacío")
+            }
+            isValid = false
+        }
+        if(uiState.value.totalDescuento == null){
+            _uiState.update {
+                it.copy(messageTotalDescuento = "Total descuento no puede estar vacío")
+            }
+            isValid = false
+        }
+        if(uiState.value.total == null){
+            _uiState.update {
+                it.copy(messageTotal = "Total no puede estar vacío")
+            }
+            isValid = false
+        }
+        return isValid
+    }
 
     fun save() {
-        viewModelScope.launch {
-            if(
-                uiState.value.cliente.isNullOrBlank()||
-                uiState.value.cantidadGalones == null||
-                uiState.value.descuento == null||
-                uiState.value.precio == null||
-                uiState.value.totalDescuento == null||
-                uiState.value.total == null
-                ){
-                _uiState.update {
-                    it.copy(message = "Todos los campos son requeridos")
-                }
-                return@launch
+        if (isValid()){
+            viewModelScope.launch {
+                ventaRepository.save(uiState.value.toEntity())
             }
-            ventaRepository.save(uiState.value.toEntity())
         }
+
     }
 
     fun delete(venta: VentaEntity) {
@@ -97,14 +116,20 @@ class VentaViewModel @Inject constructor(
 
     fun onClienteChange(cliente: String) {
         _uiState.update {
-            it.copy(cliente = cliente)
+            it.copy(
+                cliente = cliente,
+                messageCliente = if(cliente.isNotBlank()) null else "Cliente no puede estar vacío"
+            )
+
         }
     }
 
     fun onCantidadGalonesChange(cantidadGalones: Double) {
-        val newCantidadGalones = cantidadGalones
         _uiState.update {
-            it.copy(cantidadGalones = cantidadGalones)
+            it.copy(
+                cantidadGalones = cantidadGalones,
+                messageGalones = if(cantidadGalones > 0) null else "Cantidad de galones no puede estar vacío"
+            )
         }
     }
 
@@ -126,7 +151,10 @@ class VentaViewModel @Inject constructor(
         val cantGalonesDescuento = cantidadGalones *2
         val totalDescuento = (precio * cantidadGalones) - cantGalonesDescuento
         _uiState.update {
-            it.copy(totalDescuento = totalDescuento)
+            it.copy(
+                totalDescuento = totalDescuento,
+                messageTotalDescuento = if(totalDescuento > 0) null else "Total descuento no puede estar vacío"
+            )
         }
     }
 
@@ -134,7 +162,10 @@ class VentaViewModel @Inject constructor(
         val newTotal = cantidadGalones * 132.6
         viewModelScope.launch {
             _uiState.update {
-                it.copy(total = newTotal)
+                it.copy(
+                    total = newTotal,
+                    messageTotal = if(newTotal > 0) null else "Total no puede estar vacío"
+                )
             }
         }
 

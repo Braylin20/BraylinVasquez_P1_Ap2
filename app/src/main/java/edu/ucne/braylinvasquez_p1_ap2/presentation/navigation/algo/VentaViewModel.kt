@@ -29,7 +29,6 @@ class VentaViewModel @Inject constructor(
             ventaRepository.getAll().collect { ventas ->
                 _uiState.update {
                     it.copy(ventas = ventas)
-
                 }
             }
         }
@@ -48,24 +47,25 @@ class VentaViewModel @Inject constructor(
             }
             isValid = false
         }
-        if(uiState.value.totalDescuento == null){
-            _uiState.update {
-                it.copy(messageTotalDescuento = "Total descuento no puede estar vacío")
-            }
-            isValid = false
-        }
-        if(uiState.value.total == null){
-            _uiState.update {
-                it.copy(messageTotal = "Total no puede estar vacío")
-            }
-            isValid = false
-        }
+//        if(uiState.value.totalDescuento == null){
+//            _uiState.update {
+//                it.copy(messageTotalDescuento = "Total descuento no puede estar vacío")
+//            }
+//            isValid = false
+//        }
+//        if(uiState.value.total == null){
+//            _uiState.update {
+//                it.copy(messageTotal = "Total no puede estar vacío")
+//            }
+//            isValid = false
+//        }
         return isValid
     }
 
     fun save() {
         if (isValid()){
             viewModelScope.launch {
+
                 ventaRepository.save(uiState.value.toEntity())
             }
         }
@@ -125,9 +125,11 @@ class VentaViewModel @Inject constructor(
     }
 
     fun onCantidadGalonesChange(cantidadGalones: Double) {
+        val totalDescuento = cantidadGalones * (uiState.value.descuento!!)
         _uiState.update {
             it.copy(
                 cantidadGalones = cantidadGalones,
+                totalDescuento = totalDescuento,
                 messageGalones = if(cantidadGalones > 0) null else "Cantidad de galones no puede estar vacío"
             )
         }
@@ -146,17 +148,15 @@ class VentaViewModel @Inject constructor(
             it.copy(precio = newPrecio)
         }
     }
-
-    fun onTotalDescuentoChange(descuento: Double, precio: Double, cantidadGalones: Double) {
-        val cantGalonesDescuento = cantidadGalones *2
-        val totalDescuento = (precio * cantidadGalones) - cantGalonesDescuento
-        _uiState.update {
-            it.copy(
-                totalDescuento = totalDescuento,
-                messageTotalDescuento = if(totalDescuento > 0) null else "Total descuento no puede estar vacío"
-            )
-        }
-    }
+//
+//    fun onTotalDescuentoChange() {
+//        val totalDecuento = (uiState.value.cantidadGalones!!) *(uiState.value.descuento!!)
+//        _uiState.update {
+//            it.copy(
+//                totalDescuento = totalDecuento,
+//            )
+//        }
+//    }
 
     fun onTotalChange(cantidadGalones: Double) {
         val newTotal = cantidadGalones * 132.6

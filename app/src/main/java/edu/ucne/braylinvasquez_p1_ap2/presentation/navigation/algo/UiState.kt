@@ -6,7 +6,7 @@ data class UiState(
     val ventaId: Int? = null,
     val cliente: String? = null,
     val cantidadGalones: Double? = null,
-    val descuento: Double? = 2.0,
+    val descuento: Double? = null,
     val precio: Double? = 132.6,
     val totalDescuento: Double? = null,
     val total: Double? = null,

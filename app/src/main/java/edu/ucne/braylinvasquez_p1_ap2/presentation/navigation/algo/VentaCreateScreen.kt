@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.braylinvasquez_p1_ap2.data.local.entities.VentaEntity
 import edu.ucne.braylinvasquez_p1_ap2.ui.theme.BraylinVasquez_P1_Ap2Theme
+import java.util.Locale
 
 @Composable
 fun VentaCreateScreen(
@@ -68,7 +69,7 @@ fun VentaCreateBodyScreen(
     onCantidadGalonesChange: (Double) -> Unit,
     onDescuentoChange: (Double) -> Unit,
 
-    onTotalChange: (Double) -> Unit,
+    onTotalChange: () -> Unit,
     ventaId: Int
 
 ) {
@@ -139,7 +140,7 @@ fun VentaCreateBodyScreen(
                     onValueChange = {onDescuentoChange(it.toDouble())},
                     label = { Text("Descuento") },
                     modifier = Modifier.fillMaxWidth(),
-                    readOnly = true
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
                 OutlinedTextField(
                     label = { Text("Precio") },
@@ -162,8 +163,8 @@ fun VentaCreateBodyScreen(
                     )
                 }
                 OutlinedTextField(
-                    value = uiState.total?.toString()?:"",
-                    onValueChange = {onTotalChange(it.toDouble())},
+                    value = String.format(Locale.getDefault(), "%.2f", uiState.total ?: 0.0),
+                    onValueChange = {onTotalChange()},
                     label = { Text("Total") },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true
@@ -175,6 +176,7 @@ fun VentaCreateBodyScreen(
                         fontSize = 14.sp
                     )
                 }
+                Text(text = uiState.message ?: "", color = Color.Green, fontSize = 14.sp)
             }
             Row(
                 modifier = Modifier

@@ -1,30 +1,48 @@
 package edu.ucne.braylinvasquez_p1_ap2.presentation.navigation.algo
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.braylinvasquez_p1_ap2.data.local.entities.VentaEntity
 import edu.ucne.braylinvasquez_p1_ap2.ui.theme.BraylinVasquez_P1_Ap2Theme
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -37,7 +55,8 @@ fun VentaListScreen(
     VentaListBodyScreen(
         uiState = uiState,
         onGoCreate = onGoCreate,
-        onGoEdit = onGoEdit
+        onGoEdit = onGoEdit,
+        onDelete = viewModel::delete
     )
 }
 
@@ -46,7 +65,8 @@ fun VentaListScreen(
 fun VentaListBodyScreen(
     uiState: UiState,
     onGoCreate: () -> Unit,
-    onGoEdit: (Int) -> Unit
+    onGoEdit: (Int) -> Unit,
+    onDelete: (VentaEntity) -> Unit
 ) {
     Scaffold(
         floatingActionButton = {
@@ -75,7 +95,7 @@ fun VentaListBodyScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    ,
+                    .padding(horizontal = 15.dp),
                 horizontalArrangement = Arrangement.Center
             ){
                 Text(
@@ -105,13 +125,19 @@ fun VentaListBodyScreen(
             }
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .padding(horizontal = 15.dp),
             ){
-                items(uiState.ventas){ venta ->
-                    VentaListRowScreen(
-                        venta = venta,
-                        onGoEdit = onGoEdit
-                    )
+                items(
+                    uiState.ventas,
+                    key = { it.ventaId!!}
+                ){
+                    SwipeToDeleteContainer(
+                        item = it,
+                        onDelete = onDelete
+                    ) {venta ->
+                        VentaListRowScreen(venta,onGoEdit)
+                    }
                 }
             }
         }
@@ -128,10 +154,12 @@ fun VentaListRowScreen(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
             .clickable {
                 onGoEdit(venta.ventaId ?: 0)
             }
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
+
     ){
         Text(
             text = venta.ventaId?.toString()?:"",
@@ -159,6 +187,69 @@ fun VentaListRowScreen(
         )
     }
 }
+@Composable
+fun <T> SwipeToDeleteContainer(
+    item: T,
+    onDelete:(T)-> Unit,
+    animationDuration: Int = 500,
+    content: @Composable (T) -> Unit
+) {
+    var isRemoved by remember {
+        mutableStateOf(false)
+    }
+    val state = rememberSwipeToDismissBoxState(
+        confirmValueChange = {value->
+            if(value == SwipeToDismissBoxValue.EndToStart){
+                isRemoved = true
+                true
+            }else
+                false
+        }
+    )
+    LaunchedEffect(key1 = isRemoved){
+        if(isRemoved){
+            delay(animationDuration.toLong())
+            onDelete(item)
+        }
+    }
+    AnimatedVisibility(
+        visible = !isRemoved,
+        exit = shrinkVertically(
+            animationSpec = tween(durationMillis = animationDuration),
+            shrinkTowards = Alignment.Top
+        ) + fadeOut()
+    ) {
+        SwipeToDismissBox(
+            state = state,
+            backgroundContent = {
+                DeleteBackground(state)
+            },
+            content = {content(item)},
+        )
+    }
+}
+
+@Composable
+fun DeleteBackground(
+    swipeToDismissBoxState: SwipeToDismissBoxState
+) {
+    val color = if(swipeToDismissBoxState.dismissDirection == SwipeToDismissBoxValue.EndToStart){
+        Color.Red
+    }else Color.Transparent
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(16.dp),
+        contentAlignment = Alignment.CenterEnd
+    ){
+        Icon(
+            imageVector = Icons.Filled.Delete,
+            contentDescription = null,
+            tint = Color.White,
+        )
+    }
+}
 
 @Preview(showSystemUi = true)
 @Composable
@@ -167,7 +258,8 @@ private fun VentaListScreenPreview() {
         VentaListBodyScreen(
             onGoCreate = {},
             onGoEdit = {},
-            uiState = UiState()
+            uiState = UiState(),
+            onDelete = {}
         )
     }
 }

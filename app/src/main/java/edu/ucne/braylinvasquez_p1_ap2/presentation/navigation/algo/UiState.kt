@@ -8,8 +8,8 @@ data class UiState(
     val cantidadGalones: Double? = null,
     val descuento: Double? = 2.0,
     val precio: Double? = 132.6,
-    val totalDescuento: Double? = null,
-    val total: Double? = null,
+    val totalDescuento: Double? = 1.0,
+    val total: Double? = 1.0,
     val message: String? = null,
     val ventas: List<VentaEntity> = emptyList()
 )

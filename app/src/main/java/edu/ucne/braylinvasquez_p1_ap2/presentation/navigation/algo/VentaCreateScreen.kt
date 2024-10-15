@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -18,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.braylinvasquez_p1_ap2.data.local.entities.VentaEntity
 import edu.ucne.braylinvasquez_p1_ap2.ui.theme.BraylinVasquez_P1_Ap2Theme
+import java.util.Locale
 
 @Composable
 fun VentaCreateScreen(
@@ -47,7 +51,7 @@ fun VentaCreateScreen(
         onPrecioChange = viewModel::onPrecioChange,
         onCantidadGalonesChange = viewModel::onCantidadGalonesChange,
         onDescuentoChange = viewModel::onDescuentoChange,
-        onTotalDescuentoChange = viewModel::onTotalDescuentoChange,
+
         onTotalChange = viewModel::onTotalChange,
         ventaId = ventaId
     )
@@ -64,8 +68,8 @@ fun VentaCreateBodyScreen(
     onPrecioChange: (Double) -> Unit,
     onCantidadGalonesChange: (Double) -> Unit,
     onDescuentoChange: (Double) -> Unit,
-    onTotalDescuentoChange: (Double, Double, Double) -> Unit,
-    onTotalChange: (Double) -> Unit,
+
+    onTotalChange: () -> Unit,
     ventaId: Int
 
 ) {
@@ -107,20 +111,36 @@ fun VentaCreateBodyScreen(
                     value = uiState.cliente?:"",
                     onValueChange = onClienteChange,
                     label = { Text("Cliente") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = uiState.message != null && uiState.message == "Cliente no puede estar vacío",
                 )
+                if (uiState.messageCliente != null) {
+                    Text(
+                        text = uiState.messageCliente,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
                 OutlinedTextField(
                     value = uiState.cantidadGalones?.toString()?:"",
                     onValueChange = {onCantidadGalonesChange(it.toDouble())},
                     label = { Text("Cantidad de Galones") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
+                if (uiState.messageGalones != null) {
+                    Text(
+                        text = uiState.messageGalones,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
                 OutlinedTextField(
                     value = uiState.descuento?.toString()?:"",
                     onValueChange = {onDescuentoChange(it.toDouble())},
                     label = { Text("Descuento") },
                     modifier = Modifier.fillMaxWidth(),
-                    readOnly = true
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
                 OutlinedTextField(
                     label = { Text("Precio") },
@@ -130,22 +150,33 @@ fun VentaCreateBodyScreen(
                     readOnly = true
                 )
                 OutlinedTextField(
-                    value = uiState.descuento?.toString()?:"",
-                    onValueChange = {onTotalDescuentoChange(
-                        uiState.descuento?:0.0,
-                        uiState.precio?:0.0,
-                        uiState.cantidadGalones?:0.0
-                    )},
+                    value = uiState.totalDescuento?.toString()?:"",
+                    onValueChange = {},
                     label = { Text("Total Descontado") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                if (uiState.messageTotalDescuento != null) {
+                    Text(
+                        text = uiState.messageTotalDescuento,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
                 OutlinedTextField(
-                    value = uiState.cantidadGalones?.toString()?:"",
-                    onValueChange = {onTotalChange(it.toDouble())},
+                    value = String.format(Locale.getDefault(), "%.2f", uiState.total ?: 0.0),
+                    onValueChange = {onTotalChange()},
                     label = { Text("Total") },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true
                 )
+                if (uiState.messageTotal != null) {
+                    Text(
+                        text = uiState.messageTotal,
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
+                Text(text = uiState.message ?: "", color = Color.Green, fontSize = 14.sp)
             }
             Row(
                 modifier = Modifier
@@ -197,7 +228,6 @@ private fun VentaScreenPreview() {
             onPrecioChange = {},
             onCantidadGalonesChange = {},
             onDescuentoChange = {},
-            onTotalDescuentoChange = { _, _, _ ->},
             onTotalChange = {},
             ventaId = 0
         )
